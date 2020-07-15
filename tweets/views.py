@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse
+from django.conf import settings
 from . import models
 from .forms import TweetForm
 import random
@@ -11,10 +12,18 @@ def render_home_page(request):
 
 
 def tweet_create_view(request):
+    if not request.user.is_authenticated:
+        if request.is_ajax():
+            return JsonResponse(
+                {'message': 'You must be authenticated'},
+                status=401
+            )
+        return redirect(settings.LOGIN_URL)
     create_tweet_form = TweetForm(request.POST or None)
     if request.method == "POST":
         if create_tweet_form.is_valid():
             new_tweet = create_tweet_form.save(commit=False)
+            new_tweet.user = request.user or None
             new_tweet.save()
             if request.is_ajax():
                 return JsonResponse(new_tweet.serialize(), status=201)
@@ -28,7 +37,7 @@ def tweet_create_view(request):
 
 
 def tweet_list_view(request):
-    tweets = models.Tweet.objects.all().order_by('-id')
+    tweets = models.Tweet.objects.all()
     status = 200
     serialized_tweets = [tweet.serialize() for tweet in tweets]
     if not serialized_tweets:

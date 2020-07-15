@@ -87,13 +87,18 @@ async function handleFormSubmit(e) {
             const tweet = await response.json()
             const tweetDiv = createTweetDiv(tweet)
             tweetsDiv.prepend(tweetDiv)
+            form.reset()
+            break;
+        case 401:
+            const message = 'You must be logged in to tweet something'
+            handleTweetFormError(message)
             break;
         case 400:
             const errors = await response.json()
             const keys = Object.keys(errors)
             keys.forEach(key => {
                 const messages = errors[key]
-                messages.forEach(msg => handleTweetFormError(msg, true))
+                messages.forEach(msg => handleTweetFormError(msg))
             })
             break;
         case 500:
@@ -101,5 +106,4 @@ async function handleFormSubmit(e) {
             break;
     }
 
-    form.reset()
 }
