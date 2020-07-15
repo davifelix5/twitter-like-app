@@ -8,7 +8,7 @@ function handleDidLike(tweetId) {
     likeBtn.innerText = Number(number) + 1 + ' Likes'
 }
 
-function renderTweet(tweet, before = false) {
+function createTweetDiv(tweet) {
     const tweetDiv = document.createElement('div')
     tweetDiv.classList = 'mb-3 tweet'
     tweetDiv.id = `tweet-${tweet.id}`
@@ -25,10 +25,12 @@ function renderTweet(tweet, before = false) {
 
     tweetDiv.append(paragraph)
     tweetDiv.append(likeBtn)
-    if (before === true) {
-        tweetsDiv.prepend(tweetDiv)
-        return
-    }
+
+    return tweetDiv
+}
+
+function renderTweet(tweet) {
+    tweetDiv = createTweetDiv(tweet)
     tweetsDiv.append(tweetDiv)
 }
 
@@ -83,7 +85,8 @@ async function handleFormSubmit(e) {
     switch (response.status) {
         case 201:
             const tweet = await response.json()
-            renderTweet(tweet, true)
+            const tweetDiv = createTweetDiv(tweet)
+            tweetsDiv.prepend(tweetDiv)
             break;
         case 400:
             const errors = await response.json()
