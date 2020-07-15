@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="row text-center my-3">
+    <div class="col">
+        <h1>Bem vindo(a) ao meu clone do Twitter</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col col-md-10 mx-auto">
+        <div class="d-none" id="tweet-create-form-errors">
+        
+        </div>
+    <form action="{% url 'create-tweet' %}" method="POST" class="d-flex flex-column" id="create-tweet">
+        {% csrf_token %}
+        {{ tweet_form|crispy }}
+        <button type="submit" class="btn btn-primary align-self-end">Tweetar</button>
+    </form>
+    </div>
+</div>
+
+<div class="row" id="tweets">
+
+</div>
+{% endblock content %}
