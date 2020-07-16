@@ -14,6 +14,7 @@ class TweetLike(models.Model):
 
 
 class Tweet(models.Model):
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True)
     content = models.TextField(max_length=240, null=True, blank=True)
@@ -23,6 +24,10 @@ class Tweet(models.Model):
 
     class Meta:
         ordering = ['-id']
+
+    @property
+    def is_retweet(self):
+        return self.parent is not None
 
     def serialize(self):
         return {

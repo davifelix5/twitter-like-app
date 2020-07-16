@@ -55,6 +55,17 @@ async function handleDidUnlike(tweet) {
     }
 }
 
+async function handleRetweet(tweet) {
+    const retweetUrl = `/tweets/retweet/${tweet.id}/`
+    const method = 'POST'
+    const response = await fetch(BASE_URL + retweetUrl, { method, headers })
+    const data = await response.json()
+    console.log('Retweet response: ', data)
+    if (response.status === 201) {
+        loadTweets()
+    }
+}
+
 function createTweetDiv(tweet) {
     const tweetDiv = document.createElement('div')
     tweetDiv.classList = 'mb-3 tweet'
@@ -70,8 +81,14 @@ function createTweetDiv(tweet) {
     likeBtn.innerHTML = `${tweet.likes} likes`
     likeBtn.onclick = () => handleDidLike(tweet)
 
+    const retweetBtn = document.createElement('button')
+    retweetBtn.innerHTML = 'Retweet'
+    retweetBtn.classList = 'btn btn-outline-primary ml-2'
+    retweetBtn.onclick = () => handleRetweet(tweet)
+
     tweetDiv.append(paragraph)
     tweetDiv.append(likeBtn)
+    tweetDiv.append(retweetBtn)
 
     return tweetDiv
 }

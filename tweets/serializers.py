@@ -2,7 +2,14 @@ from rest_framework import serializers
 from .models import Tweet
 
 
-class TweetSerializer(serializers.ModelSerializer):
+class RetweetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tweet
+        fields = ['id', 'parent', 'user', 'content']
+
+
+class TweetCreateSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -20,3 +27,15 @@ class TweetSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Esse tweet é muito curto!')
 
         return value
+
+
+class TweetViewSerializer(serializers.ModelSerializer):
+    likes = serializers.SerializerMethodField(read_only=True)
+    original_tweet = TweetCreateSerializer(source='parent', read_only=True)
+
+    class Meta:
+        model = Tweet
+        fields = ['id', 'likes', 'content', 'is_retweet', 'parent']
+
+    def get_likes(self, obj):
+        return obj.likes.count()

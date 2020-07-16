@@ -12,4 +12,5 @@ urlpatterns = [
     path('delete/<int:pk>/', rest_views.tweet_delete_view),
     path('like/<int:pk>/', rest_views.tweet_like_view),
     path('unlike/<int:pk>/', rest_views.tweet_unlike_view),
+    path('retweet/<int:pk>/', rest_views.tweet_retweet_view),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

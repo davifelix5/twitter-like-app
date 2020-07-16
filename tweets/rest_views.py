@@ -1,4 +1,4 @@
-from .serializers import TweetSerializer
+from .serializers import TweetCreateSerializer, TweetViewSerializer, RetweetSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +9,7 @@ from . import models
 @permission_classes([IsAuthenticated])
 def tweet_create_view(request):
 
-    serializer = TweetSerializer(data=request.POST or None)
+    serializer = TweetCreateSerializer(data=request.POST or None)
 
     if serializer.is_valid(raise_exception=True):
         serializer.save(user=request.user)
@@ -21,7 +21,7 @@ def tweet_create_view(request):
 @api_view(["GET"])
 def tweet_list_view(request):
     queryset = models.Tweet.objects.all()
-    serialized_tweets = TweetSerializer(queryset, many=True)
+    serialized_tweets = TweetViewSerializer(queryset, many=True)
     response_data = {
         "message": "Tweets found successfully",
         "response": serialized_tweets.data,
@@ -38,7 +38,7 @@ def tweet_detail_view(request, pk):
             {'message': 'There is no such tweet'},
             status=404
         )
-    serialized_tweet = TweetSerializer(tweet)
+    serialized_tweet = TweetViewSerializer(tweet)
     response_data = {
         "message": "Tweet found successfully",
         "response": serialized_tweet.data,
@@ -116,7 +116,28 @@ def tweet_like_view(request, pk):
     )
 
 
-@api_view(['PATCH'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def tweet_retweet_view(request, pk):
-    pass
+    try:
+        parent_tweet = models.Tweet.objects.get(pk=pk)
+    except models.Tweet.DoesNotExist:
+        return Response(
+            {'message': 'There is no such tweet'},
+            status=404
+        )
+    reetweet_serializer = RetweetSerializer(data=request.data)
+    if reetweet_serializer.is_valid(raise_exception=True):
+        reetweet_serializer.save(user=request.user, parent=parent_tweet)
+        return Response(
+            {
+                'message': 'Retweeted successfully',
+                'response': reetweet_serializer.data
+            },
+            status=201
+        )
+
+    return Response(
+        {'message': 'Could not retweet',},
+        status=400
+    )
