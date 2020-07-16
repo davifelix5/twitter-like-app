@@ -23,6 +23,7 @@ const tweetsDiv = document.getElementById('tweets')
 
 async function handleDidLike(tweet) {
     const likeBtn = tweetsDiv.querySelector(`#tweet-${tweet.id} button`)
+    likeBtn.setAttribute('disabled', 'disabled')
     const [likes] = /\d+/g.exec(likeBtn.innerHTML)
 
     const likeUrl = `/tweets/like/${tweet.id}/`
@@ -33,12 +34,14 @@ async function handleDidLike(tweet) {
         return
     } else if (response.status === 200) {
         likeBtn.innerHTML = `${Number(likes) + 1} Likes`
+        likeBtn.removeAttribute('disabled')
     }
 
 }
 
 async function handleDidUnlike(tweet) {
     const likeBtn = tweetsDiv.querySelector(`#tweet-${tweet.id} button`)
+    likeBtn.setAttribute('disabled', 'disabled')
     const [likes] = /\d+/g.exec(likeBtn.innerHTML)
 
     const unlikeUrl = `/tweets/unlike/${tweet.id}/`
@@ -48,6 +51,7 @@ async function handleDidUnlike(tweet) {
         return
     } else if (response.status === 200) {
         likeBtn.innerHTML = `${Number(likes) - 1} Likes`
+        likeBtn.removeAttribute('disabled')
     }
 }
 
