@@ -1,3 +1,7 @@
 .bg-nav {
     background-color: #4985c2 !important
 }
+textarea[name="content"] {
+    resize: none;
+    height: 120px !important;
+}

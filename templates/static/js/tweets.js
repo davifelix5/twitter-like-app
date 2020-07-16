@@ -1,11 +1,54 @@
 const BASE_URL = 'http://127.0.0.1:8000'
+const headers = {
+    'X-CSRFToken': getCookie('csrftoken')
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 const tweetsDiv = document.getElementById('tweets')
 
-function handleDidLike(tweetId) {
-    const likeBtn = tweetsDiv.querySelector(`#tweet-${tweetId} button`)
-    const [number] = /\d+/g.exec(likeBtn.innerHTML)
-    likeBtn.innerText = Number(number) + 1 + ' Likes'
+async function handleDidLike(tweet) {
+    const likeBtn = tweetsDiv.querySelector(`#tweet-${tweet.id} button`)
+    const [likes] = /\d+/g.exec(likeBtn.innerHTML)
+
+    const likeUrl = `/tweets/like/${tweet.id}/`
+    const method = 'PATCH'
+    const response = await fetch(BASE_URL + likeUrl, { method, headers })
+    if (response.status === 409) {
+        handleDidUnlike(tweet)
+        return
+    } else if (response.status === 200) {
+        likeBtn.innerHTML = `${Number(likes) + 1} Likes`
+    }
+
+}
+
+async function handleDidUnlike(tweet) {
+    const likeBtn = tweetsDiv.querySelector(`#tweet-${tweet.id} button`)
+    const [likes] = /\d+/g.exec(likeBtn.innerHTML)
+
+    const unlikeUrl = `/tweets/unlike/${tweet.id}/`
+    const method = 'PATCH'
+    const response = await fetch(BASE_URL + unlikeUrl, { method, headers })
+    if (response.status === 409) {
+        return
+    } else if (response.status === 200) {
+        likeBtn.innerHTML = `${Number(likes) - 1} Likes`
+    }
 }
 
 function createTweetDiv(tweet) {
@@ -21,7 +64,7 @@ function createTweetDiv(tweet) {
     likeBtn.classList = "btn btn-primary"
 
     likeBtn.innerHTML = `${tweet.likes} likes`
-    likeBtn.onclick = () => handleDidLike(tweet.id)
+    likeBtn.onclick = () => handleDidLike(tweet)
 
     tweetDiv.append(paragraph)
     tweetDiv.append(likeBtn)
@@ -89,10 +132,15 @@ async function handleFormSubmit(e) {
             tweetsDiv.prepend(tweetDiv)
             form.reset()
             break;
-        case 401:
+        case 403:
             const message = 'You must be logged in to tweet something'
             handleTweetFormError(message)
             break;
+        case 401: {
+            const message = 'You dont have permission to do that'
+            handleTweetFormError(message)
+            break;
+        }
         case 400:
             const errors = await response.json()
             const keys = Object.keys(errors)
