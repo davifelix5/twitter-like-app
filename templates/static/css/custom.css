@@ -5,3 +5,33 @@ textarea[name="content"] {
     resize: none;
     height: 120px !important;
 }
+
+#retweet-div {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    background-color: rgb(182, 182, 182);
+    
+    padding: 25px;
+    position: fixed;
+    top: 50%;
+    right: 50%;
+    width: 85%;
+
+    transform: translate(50%, -50%);
+
+}
+
+#retweet-div textarea {
+    height: 226px;
+}
+
+#retweet-div .close-btn {
+    position: absolute;
+    background: none;
+    border: none;
+    color: red;
+    top: 2%;
+    right: 2%;
+
+}

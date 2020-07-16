@@ -11,13 +11,17 @@ class RetweetSerializer(serializers.ModelSerializer):
 
 class TweetCreateSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField(read_only=True)
+    retweets = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Tweet
-        fields = ['id', 'likes', 'content', 'user']
+        fields = ['id', 'likes', 'content', 'user', 'retweets']
 
     def get_likes(self, obj):
         return obj.likes.count()
+
+    def get_retweets(self, obj):
+        return Tweet.objects.filter(parent__pk=obj.pk).count()
 
     def validate_content(self, value):
 
@@ -32,10 +36,14 @@ class TweetCreateSerializer(serializers.ModelSerializer):
 class TweetViewSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField(read_only=True)
     parent = TweetCreateSerializer(read_only=True)
+    retweets = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Tweet
-        fields = ['id', 'likes', 'content', 'user', 'is_retweet', 'parent']
+        fields = ['id', 'likes', 'content', 'user', 'is_retweet', 'parent', 'retweets']
 
     def get_likes(self, obj):
         return obj.likes.count()
+
+    def get_retweets(self, obj):
+        return Tweet.objects.filter(parent__pk=obj.pk).count()

@@ -35,7 +35,7 @@ async function handleDidLike(tweet) {
         handleDidUnlike(tweet)
         return
     } else if (response.status === 200) {
-        likeBtn.innerHTML = `${Number(likes) + 1} Likes`
+        loadTweets() // Allows to update the retweets as well
     }
     likeBtn.removeAttribute('disabled')
 
@@ -44,7 +44,6 @@ async function handleDidLike(tweet) {
 async function handleDidUnlike(tweet) {
     const likeBtn = tweetsDiv.querySelector(`#tweet-${tweet.id} button`)
     likeBtn.setAttribute('disabled', 'disabled')
-    const [likes] = /\d+/g.exec(likeBtn.innerHTML)
 
     const unlikeUrl = `/api/tweets/unlike/${tweet.id}/`
     const method = 'PATCH'
@@ -52,20 +51,110 @@ async function handleDidUnlike(tweet) {
     if (response.status === 409) {
         return
     } else if (response.status === 200) {
-        likeBtn.innerHTML = `${Number(likes) - 1} Likes`
-        likeBtn.removeAttribute('disabled')
+        loadTweets() // Allows to update the retweets as well
     }
+    likeBtn.removeAttribute('disabled')
 }
 
-async function handleRetweet(tweet) {
-    const retweetUrl = `/api/tweets/retweet/${tweet.id}/`
+function renderRetweetForm(tweet) {
+
+    const existingRetweetDiv = document.getElementById('retweet-div')
+
+    if (existingRetweetDiv) existingRetweetDiv.remove()
+
+    const retweetDiv = document.createElement('div')
+    retweetDiv.id = 'retweet-div'
+    retweetDiv.classList = 'border rounded'
+
+    const parentTweet = createRetweetSection(tweet)
+    parentTweet.classList.add('mb-3')
+
+    const retweetForm = document.createElement('form')
+    retweetForm.classList = 'd-flex flex-column'
+
+    const formControl = document.createElement('div')
+    formControl.classList = 'form-group'
+
+    const commetInput = document.createElement('textarea')
+    commetInput.placeholder = 'Digite seu comentário aqui'
+    commetInput.classList = 'form-control'
+    commetInput.id = 'comment-input'
+
+    const submitBtn = document.createElement('button')
+    submitBtn.type = 'submit'
+    submitBtn.classList = 'btn btn-primary justify-self-end'
+    retweetForm.onsubmit = (e) => {
+        e.preventDefault()
+        handleRetweet({
+            parentTweet: tweet,
+            content: document.getElementById('comment-input').value
+        })
+    }
+
+    const closeBtn = document.createElement('button')
+    closeBtn.classList = 'close-btn'
+    closeBtn.innerHTML = '&#x274C;'
+    closeBtn.onclick = () => retweetDiv.remove()
+
+    submitBtn.innerHTML = 'Retweet'
+
+    formControl.append(commetInput)
+    retweetForm.append(formControl)
+    retweetForm.append(submitBtn)
+    retweetDiv.append(retweetForm)
+    retweetDiv.append(closeBtn)
+
+    retweetDiv.prepend(parentTweet)
+
+    document.querySelector('.container').append(retweetDiv)
+
+}
+
+async function handleRetweet({ parentTweet, content }) {
+    const retweetUrl = `/api/tweets/retweet/${parentTweet.id}/`
     const method = 'POST'
-    const response = await fetch(BASE_URL + retweetUrl, { method, headers })
+    const response = await fetch(BASE_URL + retweetUrl, {
+        method,
+        headers: {
+            ...headers,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            content: content
+        })
+    })
     const data = await response.json()
     console.log('Retweet response: ', data)
     if (response.status === 201) {
+        document.getElementById('retweet-div').remove()
         loadTweets()
     }
+}
+
+function createRetweetSection(parentTweet) {
+    const parentContainer = document.createElement('div')
+    const parentParagragh = document.createElement('p')
+    parentContainer.classList = 'border-bottom mb-3'
+    parentParagragh.classList = 'mb-1'
+
+    const likesSpan = document.createElement('span')
+    const retweetsSpan = document.createElement('span')
+
+    likesSpan.classList = 'small text-muted mr-2'
+    retweetsSpan.classList = 'small text-muted'
+
+    const likesComplement = parentTweet.likes === 1 ? 'Like' : 'Likes'
+    const retweetsComplement = parentTweet.retweets === 1 ? 'Retweet' : 'Retweets'
+
+    parentParagragh.innerHTML = parentTweet.content
+    likesSpan.innerHTML = `${parentTweet.likes} ${likesComplement}`
+    retweetsSpan.innerHTML = `${parentTweet.retweets} ${retweetsComplement}`
+
+    parentContainer.append(parentParagragh)
+    parentContainer.append(likesSpan)
+    parentContainer.append(retweetsSpan)
+
+    return parentContainer
 }
 
 function createTweetDiv(tweet) {
@@ -86,11 +175,17 @@ function createTweetDiv(tweet) {
     const retweetBtn = document.createElement('button')
     retweetBtn.innerHTML = 'Retweet'
     retweetBtn.classList = 'btn btn-outline-primary ml-2'
-    retweetBtn.onclick = () => handleRetweet(tweet)
+    retweetBtn.onclick = () => renderRetweetForm(tweet)
 
     tweetDiv.append(paragraph)
     tweetDiv.append(likeBtn)
     tweetDiv.append(retweetBtn)
+
+    if (tweet.is_retweet) {
+        const parentConteiner = createRetweetSection(tweet.parent)
+        tweetDiv.prepend(parentConteiner)
+    }
+
 
     return tweetDiv
 }
