@@ -138,6 +138,6 @@ def tweet_retweet_view(request, pk):
         )
 
     return Response(
-        {'message': 'Could not retweet',},
+        {'message': 'Could not retweet'},
         status=400
     )

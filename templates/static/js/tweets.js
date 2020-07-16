@@ -26,16 +26,18 @@ async function handleDidLike(tweet) {
     likeBtn.setAttribute('disabled', 'disabled')
     const [likes] = /\d+/g.exec(likeBtn.innerHTML)
 
-    const likeUrl = `/tweets/like/${tweet.id}/`
+    const likeUrl = `/api/tweets/like/${tweet.id}/`
     const method = 'PATCH'
     const response = await fetch(BASE_URL + likeUrl, { method, headers })
+    const data = await response.json()
+    console.log(data)
     if (response.status === 409) {
         handleDidUnlike(tweet)
         return
     } else if (response.status === 200) {
         likeBtn.innerHTML = `${Number(likes) + 1} Likes`
-        likeBtn.removeAttribute('disabled')
     }
+    likeBtn.removeAttribute('disabled')
 
 }
 
@@ -44,7 +46,7 @@ async function handleDidUnlike(tweet) {
     likeBtn.setAttribute('disabled', 'disabled')
     const [likes] = /\d+/g.exec(likeBtn.innerHTML)
 
-    const unlikeUrl = `/tweets/unlike/${tweet.id}/`
+    const unlikeUrl = `/api/tweets/unlike/${tweet.id}/`
     const method = 'PATCH'
     const response = await fetch(BASE_URL + unlikeUrl, { method, headers })
     if (response.status === 409) {
@@ -56,7 +58,7 @@ async function handleDidUnlike(tweet) {
 }
 
 async function handleRetweet(tweet) {
-    const retweetUrl = `/tweets/retweet/${tweet.id}/`
+    const retweetUrl = `/api/tweets/retweet/${tweet.id}/`
     const method = 'POST'
     const response = await fetch(BASE_URL + retweetUrl, { method, headers })
     const data = await response.json()
@@ -98,7 +100,7 @@ function renderTweet(tweet) {
     tweetsDiv.append(tweetDiv)
 }
 
-const url = '/tweets/list/'
+const url = '/api/tweets/'
 function loadTweets() {
     fetch(BASE_URL + url)
         .then(response => response.json())
