@@ -20,17 +20,27 @@ function getCookie(name) {
 }
 
 const tweetsDiv = document.getElementById('tweets')
+tweetsDiv.innerHTML = 'Loading..'
+loadTweets()
+
+function loadTweets() {
+    const listUrl = '/api/tweets/'
+    fetch(BASE_URL + listUrl)
+        .then(response => response.json())
+        .then(data => data.response)
+        .then(tweets => {
+            tweetsDiv.innerHTML = ""
+            tweets.forEach(renderTweet)
+        })
+}
 
 async function handleDidLike(tweet) {
     const likeBtn = tweetsDiv.querySelector(`#tweet-${tweet.id} button`)
     likeBtn.setAttribute('disabled', 'disabled')
-    const [likes] = /\d+/g.exec(likeBtn.innerHTML)
 
     const likeUrl = `/api/tweets/like/${tweet.id}/`
     const method = 'PATCH'
     const response = await fetch(BASE_URL + likeUrl, { method, headers })
-    const data = await response.json()
-    console.log(data)
     if (response.status === 409) {
         handleDidUnlike(tweet)
         return
@@ -80,9 +90,12 @@ function renderRetweetForm(tweet) {
     commetInput.classList = 'form-control'
     commetInput.id = 'comment-input'
 
+    const submitContainer = document.createElement('div')
+    submitContainer.classList.add('d-flex', 'justify-content-end')
+
     const submitBtn = document.createElement('button')
     submitBtn.type = 'submit'
-    submitBtn.classList = 'btn btn-primary justify-self-end'
+    submitBtn.classList = 'btn btn-lg btn-primary'
     retweetForm.onsubmit = (e) => {
         e.preventDefault()
         handleRetweet({
@@ -90,6 +103,8 @@ function renderRetweetForm(tweet) {
             content: document.getElementById('comment-input').value
         })
     }
+
+    submitContainer.append(submitBtn)
 
     const closeBtn = document.createElement('button')
     closeBtn.classList = 'close-btn'
@@ -100,7 +115,8 @@ function renderRetweetForm(tweet) {
 
     formControl.append(commetInput)
     retweetForm.append(formControl)
-    retweetForm.append(submitBtn)
+    retweetForm.append(submitContainer)
+
     retweetDiv.append(retweetForm)
     retweetDiv.append(closeBtn)
 
@@ -123,8 +139,6 @@ async function handleRetweet({ parentTweet, content }) {
             content: content
         })
     })
-    const data = await response.json()
-    console.log('Retweet response: ', data)
     if (response.status === 201) {
         document.getElementById('retweet-div').remove()
         loadTweets()
@@ -139,9 +153,11 @@ function createRetweetSection(parentTweet) {
 
     const likesSpan = document.createElement('span')
     const retweetsSpan = document.createElement('span')
+    const authorSpan = document.createElement('span')
 
     likesSpan.classList = 'small text-muted mr-2'
-    retweetsSpan.classList = 'small text-muted'
+    retweetsSpan.classList = 'small text-muted mr-2'
+    authorSpan.classList = 'small text-muted'
 
     const likesComplement = parentTweet.likes === 1 ? 'Like' : 'Likes'
     const retweetsComplement = parentTweet.retweets === 1 ? 'Retweet' : 'Retweets'
@@ -149,10 +165,12 @@ function createRetweetSection(parentTweet) {
     parentParagragh.innerHTML = parentTweet.content
     likesSpan.innerHTML = `${parentTweet.likes} ${likesComplement}`
     retweetsSpan.innerHTML = `${parentTweet.retweets} ${retweetsComplement}`
+    authorSpan.innerHTML = `Por ${parentTweet.user.username}`
 
     parentContainer.append(parentParagragh)
     parentContainer.append(likesSpan)
     parentContainer.append(retweetsSpan)
+    parentContainer.append(authorSpan)
 
     return parentContainer
 }
@@ -172,14 +190,23 @@ function createTweetDiv(tweet) {
     likeBtn.innerHTML = `${tweet.likes} likes`
     likeBtn.onclick = () => handleDidLike(tweet)
 
+    const actionDiv = document.createElement('div')
+    actionDiv.classList = 'd-flex flex-row w-100'
+
     const retweetBtn = document.createElement('button')
     retweetBtn.innerHTML = 'Retweet'
     retweetBtn.classList = 'btn btn-outline-primary ml-2'
     retweetBtn.onclick = () => renderRetweetForm(tweet)
 
+    const userText = document.createElement('span')
+    userText.innerHTML = `Por ${tweet.user.username}`
+    userText.classList = 'small text-muted align-self-center ml-5'
+
     tweetDiv.append(paragraph)
-    tweetDiv.append(likeBtn)
-    tweetDiv.append(retweetBtn)
+    actionDiv.append(likeBtn)
+    actionDiv.append(retweetBtn)
+    actionDiv.append(userText)
+    tweetDiv.append(actionDiv)
 
     if (tweet.is_retweet) {
         const parentConteiner = createRetweetSection(tweet.parent)
@@ -195,21 +222,6 @@ function renderTweet(tweet) {
     tweetsDiv.append(tweetDiv)
 }
 
-const url = '/api/tweets/'
-function loadTweets() {
-    fetch(BASE_URL + url)
-        .then(response => response.json())
-        .then(data => data.response)
-        .then(tweets => {
-            tweetsDiv.innerHTML = ""
-            tweets.forEach(renderTweet)
-        })
-}
-
-tweetsDiv.innerHTML = 'Loading..'
-
-loadTweets()
-
 const createForm = document.getElementById('create-tweet')
 createForm.addEventListener('submit', handleFormSubmit)
 
@@ -222,7 +234,10 @@ function handleTweetFormError(msg) {
     errorDiv.append(alertElement)
 
     alertElement.innerHTML = msg
-    setTimeout(() => errorDiv.classList.add('d-none'), 2500);
+    setTimeout(() => {
+        errorDiv.classList.add('d-none')
+        alertElement.remove()
+    }, 2500);
 }
 
 async function handleFormSubmit(e) {

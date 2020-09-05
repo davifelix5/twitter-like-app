@@ -35,3 +35,7 @@ textarea[name="content"] {
     right: 2%;
 
 }
+
+.justify-self-end {
+    float: right;
+}
