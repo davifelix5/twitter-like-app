@@ -12,8 +12,8 @@ def tweet_create_view(request):
     serializer = TweetCreateSerializer(data=request.POST or None)
 
     if serializer.is_valid(raise_exception=True):
-        serializer.save(user=request.user)
-        return Response(serializer.data, status=201)
+        tweet = serializer.save(user=request.user)
+        return Response(TweetViewSerializer(tweet).data, status=201)
 
     return Response({}, status=400)
 
