@@ -1,0 +1,54 @@
+textarea[name="content"] {
+  resize: none;
+  height: 100%;
+}
+
+.form-modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: transparent;
+  
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 100;
+
+}
+
+.form-modal {
+  position: relative;
+  width: 80%;
+  height: 80%;
+  padding: 15px;
+  background-color: #b6b6b6;
+}
+
+.form-modal textarea {
+  height: 226px;
+}
+
+.form-modal .close-btn {
+  position: absolute;
+  background: none;
+  border: none;
+  color: red;
+  top: 2%;
+  right: 2%;
+}
+
+.form-modal .close-btn:active,
+.form-modal .close-btn:enabled {
+  outline: none;
+}
+
+.form-modal .close-btn:hover {
+  transform: scale(.8);
+}
+
+.justify-self-end {
+  float: right;
+}

@@ -21,7 +21,7 @@ export default {
     if (response.status === 200) {
       return true
     }
-    const error = { message: 'Could not unlike the tweet', status: response.status }
+    const error = { message: 'Could not like the tweet', status: response.status }
     throw error
   },
 
@@ -32,7 +32,24 @@ export default {
     if (response.status === 200) {
       return true
     }
-    const error = { message: 'Could not like the tweet', status: response.status }
+    const error = { message: 'Could not unlike the tweet', status: response.status }
+    throw error
+  },
+
+  async retweet(parentTweet, content) {
+    const retweetUrl = `retweet/${parentTweet.id}/`
+    const method = 'POST'
+    const response = await fetch(BASE_URL + retweetUrl, {
+      method,
+      postHeaders,
+      body: JSON.stringify({
+        content: content
+      })
+    })
+    if (response.status === 201) {
+      return true
+    }
+    const error = { message: 'Could not retweet', status: response.status }
     throw error
   }
 }
