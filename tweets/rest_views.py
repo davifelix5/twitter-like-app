@@ -9,7 +9,7 @@ from . import models
 @permission_classes([IsAuthenticated])
 def tweet_create_view(request):
 
-    serializer = TweetCreateSerializer(data=request.POST or None)
+    serializer = TweetCreateSerializer(data=request.data or request.POST)
 
     if serializer.is_valid(raise_exception=True):
         tweet = serializer.save(user=request.user)
