@@ -14,6 +14,18 @@ export default {
     }
   },
 
+  async post(data) {
+    const url = BASE_URL + 'tweets/create/'
+    const method = 'POST'
+    const body = JSON.stringify(data)
+    const response = await fetch(url, { method, body })
+    if (response.status === 201) {
+      return await response.json()
+    }
+    const error = { message: 'Could not post tweet', status: response.status }
+    throw error
+  },
+
   async like(tweetId) {
     const likeUrl = `tweets/like/${tweetId}/`
     const method = 'PATCH'
@@ -37,7 +49,7 @@ export default {
   },
 
   async retweet(parentTweet, content) {
-    const retweetUrl = `retweet/${parentTweet.id}/`
+    const retweetUrl = `tweets/retweet/${parentTweet.id}/`
     const method = 'POST'
     const response = await fetch(BASE_URL + retweetUrl, {
       method,

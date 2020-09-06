@@ -8,6 +8,10 @@ export function useForm(initialValues) {
     setValues({ ...values, [name]: value })
   }
 
-  return [values, handleChange]
+  function clear() {
+    setValues(initialValues)
+  }
+
+  return [values, handleChange, clear]
 
 }

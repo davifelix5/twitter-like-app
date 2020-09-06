@@ -14,7 +14,7 @@ export default function RetweetForm({ tweet, hideForm }) {
 
   function handleRetweet(e) {
     e.preventDefault()
-    api.retweet(tweet.id, values.content)
+    api.retweet(tweet.id, values)
       .then(() => {
         alert('Retweeted successfuly')
       })
@@ -41,7 +41,9 @@ export default function RetweetForm({ tweet, hideForm }) {
           <textarea placeholder="Digite seu comentário" name="content" type="text" value={values.content} onChange={handleChange} className="form-control mb-2 retweet-area" />
           <button type="submit" className="btn btn-primary align-self-end">Tweet</button>
         </form>
-        <button className="close-btn" onClick={handleHideForm}>&#x274C;</button>
+        <button className="close-btn" onClick={handleHideForm}>
+          <span role="img" aria-label="Close">&#x274C;</span>
+        </button>
       </div>
     </div>
   )

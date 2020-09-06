@@ -40,7 +40,7 @@ export default function ({ tweet }) {
 	return (
 		<>
 			{retweeting && <RetweetForm tweet={tweet} hideForm={() => setRetweeting(false)} />}
-			<div className="col-12 col-md-10 mx-auto border rounded py-3 mb-4">
+			<>
 				{tweet.is_retweet && (
 					<div className="border-bottom mb-3">
 						<p className="mb-1">{tweet.parent.content}</p>
@@ -55,7 +55,7 @@ export default function ({ tweet }) {
 					<button className="btn btn-outline-primary ml-2" onClick={handleRetweet}>Retweet</button>
 					<p className="small text-muted align-self-center mb-0 ml-5">Por {tweet.user.username}</p>
 				</div>
-			</div>
+			</>
 		</>
 	)
 }
