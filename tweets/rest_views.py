@@ -128,12 +128,10 @@ def tweet_retweet_view(request, pk):
         )
     reetweet_serializer = RetweetSerializer(data=request.data)
     if reetweet_serializer.is_valid(raise_exception=True):
-        reetweet_serializer.save(user=request.user, parent=parent_tweet)
+        tweet = reetweet_serializer.save(
+            user=request.user, parent=parent_tweet)
         return Response(
-            {
-                'message': 'Retweeted successfully',
-                'response': reetweet_serializer.data
-            },
+            TweetViewSerializer(tweet).data,
             status=201
         )
 
