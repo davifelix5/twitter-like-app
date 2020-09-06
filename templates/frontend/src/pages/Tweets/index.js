@@ -30,7 +30,7 @@ export default function Tweets() {
 							{tweets.map(tweet => {
 								return (
 									<li className="col-12 col-md-10 mx-auto border rounded py-3 mb-4" key={tweet.id}>
-										<Tweet tweet={tweet} />
+										<Tweet tweet={tweet} tweets={tweets} setTweets={setTweets} />
 									</li>
 								)
 							})}

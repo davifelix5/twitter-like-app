@@ -6,7 +6,7 @@ import api from '../../../../api/tweets'
 
 import './styles.css'
 
-export default function RetweetForm({ tweet, hideForm }) {
+export default function RetweetForm({ tweet, hideForm, tweets, setTweets }) {
 
   const [values, handleChange] = useForm({
     content: '',
@@ -14,9 +14,11 @@ export default function RetweetForm({ tweet, hideForm }) {
 
   function handleRetweet(e) {
     e.preventDefault()
-    api.retweet(tweet.id, values)
-      .then(() => {
+    api.retweet(tweet.id, values.content)
+      .then(res => {
+        setTweets([res, ...tweets])
         alert('Retweeted successfuly')
+        handleHideForm()
       })
       .catch(err => {
         if (err.status === 401) return alert('Você deve estar logado!')

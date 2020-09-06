@@ -6,7 +6,7 @@ import api from '../../api/tweets'
 
 export default function PostTweetForm({ tweets, setTweets }) {
 
-  const [values, handleChange, clear] = useForm({
+  const [values, handleChange, clearForm] = useForm({
     content: ''
   })
 
@@ -14,9 +14,10 @@ export default function PostTweetForm({ tweets, setTweets }) {
     e.preventDefault()
     api.post(values)
       .then(res => {
-        console.log('**PostTweetForm.handleSubmit.then(): ', res)
+        setTweets([res, ...tweets])
+        console.log('PostTweetForm.handleSubmit.then.res: ', res)
         alert('Tweeted successfully!')
-        clear()
+        clearForm()
       })
       .catch(() => {
         alert('Could not tweet!')

@@ -18,9 +18,9 @@ export default {
     const url = BASE_URL + 'tweets/create/'
     const method = 'POST'
     const body = JSON.stringify(data)
-    const response = await fetch(url, { method, body })
+    const response = await fetch(url, { method, body, headers: postHeaders })
     if (response.status === 201) {
-      return await response.json()
+      return response.json()
     }
     const error = { message: 'Could not post tweet', status: response.status }
     throw error
@@ -29,7 +29,7 @@ export default {
   async like(tweetId) {
     const likeUrl = `tweets/like/${tweetId}/`
     const method = 'PATCH'
-    const response = await fetch(BASE_URL + likeUrl, { method, postHeaders })
+    const response = await fetch(BASE_URL + likeUrl, { method, headers: postHeaders })
     if (response.status === 200) {
       return true
     }
@@ -40,7 +40,7 @@ export default {
   async unlike(tweetId) {
     const unlikeUrl = `tweets/unlike/${tweetId}/`
     const method = 'PATCH'
-    const response = await fetch(BASE_URL + unlikeUrl, { method, postHeaders })
+    const response = await fetch(BASE_URL + unlikeUrl, { method, headers: postHeaders })
     if (response.status === 200) {
       return true
     }
@@ -49,17 +49,18 @@ export default {
   },
 
   async retweet(parentTweet, content) {
-    const retweetUrl = `tweets/retweet/${parentTweet.id}/`
+    const retweetUrl = `tweets/retweet/${parentTweet}/`
     const method = 'POST'
+    console.log(BASE_URL + retweetUrl)
     const response = await fetch(BASE_URL + retweetUrl, {
       method,
-      postHeaders,
+      headers: postHeaders,
       body: JSON.stringify({
         content: content
       })
     })
     if (response.status === 201) {
-      return true
+      return response.json()
     }
     const error = { message: 'Could not retweet', status: response.status }
     throw error

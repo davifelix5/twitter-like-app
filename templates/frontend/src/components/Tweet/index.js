@@ -4,7 +4,7 @@ import RetweetForm from './components/RetweetForm'
 
 import api from '../../api/tweets'
 
-export default function ({ tweet }) {
+export default function ({ tweet, tweets, setTweets }) {
 
 	const [likes, setLikes] = useState(tweet.likes || 0)
 	const [liked, setLiked] = useState(false)
@@ -39,7 +39,7 @@ export default function ({ tweet }) {
 
 	return (
 		<>
-			{retweeting && <RetweetForm tweet={tweet} hideForm={() => setRetweeting(false)} />}
+			{retweeting && <RetweetForm tweet={tweet} hideForm={() => setRetweeting(false)} tweets={tweets} setTweets={setTweets} />}
 			<>
 				{tweet.is_retweet && (
 					<div className="border-bottom mb-3">
