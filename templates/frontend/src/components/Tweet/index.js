@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react'
 
 import RetweetForm from './components/RetweetForm'
+import ParentTweet from './components/ParentTweet'
 
 import api from '../../api/tweets'
 
-export default function ({ tweet, tweets, setTweets }) {
+export default function ({ tweet, tweets, setTweets, noParent }) {
 
-	const [likes, setLikes] = useState(tweet.likes || 0)
 	const likeBtn = useRef(null)
 	const [retweeting, setRetweeting] = useState(false)
 
@@ -14,9 +14,17 @@ export default function ({ tweet, tweets, setTweets }) {
 		likeBtn.current.disabled = true
 		api.toogleLike(tweet.id)
 			.then(wasLiked => {
-				setLikes(wasLiked ? likes + 1 : likes - 1)
+				const newLikes = wasLiked ? tweet.likes + 1 : tweet.likes - 1
+				const newTweets = tweets.map(pub => {
+					if (pub.id === tweet.id) return { ...pub, likes: newLikes }
+					else if (pub.parent && pub.parent.id === tweet.id) {
+						return { ...pub, parent: { ...pub.parent, likes: newLikes } }
+					}
+					return pub
+				})
+				setTweets(newTweets)
 			})
-			.catch(err => {
+			.catch(() => {
 				alert('An error has occured')
 			})
 			.finally(() => {
@@ -31,22 +39,17 @@ export default function ({ tweet, tweets, setTweets }) {
 	return (
 		<>
 			{retweeting && <RetweetForm tweet={tweet} hideForm={() => setRetweeting(false)} tweets={tweets} setTweets={setTweets} />}
-			<>
-				{tweet.is_retweet && (
-					<div className="border-bottom mb-3">
-						<p className="mb-1">{tweet.parent.content}</p>
-						<span className="small text-muted mr-2">{tweet.parent.likes} Likes</span>
-						<span className="small text-muted mr-2">{tweet.parent.retweets} retweets</span>
-						<span className="small text-muted">Por {tweet.parent.user.username}</span>
-					</div>
-				)}
+			{tweet.is_retweet && !noParent && (
+				<ParentTweet tweet={tweet.parent} tweets={tweets} setTweets={setTweets} />
+			)}
+			<div className="mb-3">
 				<p>{tweet.content}</p>
 				<div className="d-flex flex-row w-100">
-					<button className="btn btn-primary" ref={likeBtn} onClick={handleClick}> {likes} Likes</button>
-					<button className="btn btn-outline-primary ml-2" onClick={handleRetweet}>Retweet</button>
+					<button className="btn btn-primary" ref={likeBtn} onClick={handleClick}> {tweet.likes} Likes</button>
+					<button className="btn btn-outline-primary ml-2" onClick={handleRetweet}>{tweet.retweets} Retweets</button>
 					<p className="small text-muted align-self-center mb-0 ml-5">Por {tweet.user.username}</p>
 				</div>
-			</>
+			</div>
 		</>
 	)
 }

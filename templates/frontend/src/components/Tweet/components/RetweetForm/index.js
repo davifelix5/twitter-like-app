@@ -16,7 +16,15 @@ export default function RetweetForm({ tweet, hideForm, tweets, setTweets }) {
     e.preventDefault()
     api.retweet(tweet.id, values.content)
       .then(res => {
-        setTweets([res, ...tweets])
+        const newTweets = tweets.map(pub => {
+          if (pub.id === tweet.id) {
+            return { ...pub, retweets: pub.retweets + 1 }
+          } else if (pub.parent && pub.parent.id === tweet.id) {
+            return { ...pub, parent: { ...pub.parent, retweets: pub.parent.retweets + 1 } }
+          }
+          return pub
+        })
+        setTweets([res, ...newTweets])
         alert('Retweeted successfuly')
         handleHideForm()
       })
