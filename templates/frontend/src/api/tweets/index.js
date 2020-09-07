@@ -48,6 +48,20 @@ export default {
     throw error
   },
 
+  async toogleLike(tweetId) {
+    try {
+      await this.like(tweetId)
+      return true
+    } catch (err) {
+      if (err.status === 409) {
+        await this.unlike(tweetId)
+        return false
+      }
+      const error = { message: 'An error has occured', status: err.status }
+      throw error
+    }
+  },
+
   async retweet(parentTweet, content) {
     const retweetUrl = `tweets/retweet/${parentTweet}/`
     const method = 'POST'
