@@ -5,6 +5,7 @@ from . import rest_views
 
 urlpatterns = [
     path('', rest_views.tweet_list_view),
+    path('<str:username>', rest_views.tweet_profile_list_view),
     path('<int:pk>/', rest_views.tweet_detail_view),
     path('create/', rest_views.tweet_create_view, name="create-tweet"),
     path('delete/<int:pk>/', rest_views.tweet_delete_view),

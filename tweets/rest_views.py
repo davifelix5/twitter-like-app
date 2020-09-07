@@ -1,4 +1,8 @@
-from .serializers import TweetCreateSerializer, TweetViewSerializer, RetweetSerializer
+from .serializers import (
+    TweetCreateSerializer,
+    TweetViewSerializer,
+    RetweetSerializer
+)
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -21,9 +25,28 @@ def tweet_create_view(request):
 @api_view(["GET"])
 def tweet_list_view(request):
     queryset = models.Tweet.objects.all()
+    username = request.GET.get('username')
+    if username:
+        queryset = queryset.filter(user__username__iexact=username)
     serialized_tweets = TweetViewSerializer(queryset, many=True)
     response_data = {
         "message": "Tweets found successfully",
+        "response": serialized_tweets.data,
+    }
+    return Response(response_data, status=200)
+
+
+@api_view(["GET"])
+def tweet_profile_list_view(request, username):
+    queryset = models.Tweet.objects.filter(user__username__iexact=username)
+    if not queryset:
+        response_data = {
+            'message': f"{username}'s tweets not found"
+        }
+        return Response(response_data, status=404)
+    serialized_tweets = TweetViewSerializer(queryset, many=True)
+    response_data = {
+        "message": f"{username}'s tweets found successfully",
         "response": serialized_tweets.data,
     }
     return Response(response_data, status=200)
