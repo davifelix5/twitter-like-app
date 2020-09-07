@@ -10,23 +10,27 @@ export default function ({ tweet, tweets, setTweets, noParent }) {
 	const likeBtn = useRef(null)
 	const [retweeting, setRetweeting] = useState(false)
 
+	function updateTweetLikes(newLikes) {
+		const newTweets = tweets.map(pub => {
+			if (pub.id === tweet.id) {
+				return { ...pub, likes: newLikes }
+			} else if (pub.parent && pub.parent.id === tweet.id) {
+				return { ...pub, parent: { ...pub.parent, likes: newLikes } }
+			}
+			return pub
+		})
+		setTweets(newTweets)
+	}
+
 	function handleClick() {
 		likeBtn.current.disabled = true
 		api.toogleLike(tweet.id)
 			.then(wasLiked => {
 				const newLikes = wasLiked ? tweet.likes + 1 : tweet.likes - 1
-				const newTweets = tweets.map(pub => {
-					if (pub.id === tweet.id) {
-						return { ...pub, likes: newLikes }
-					} else if (pub.parent && pub.parent.id === tweet.id) {
-						return { ...pub, parent: { ...pub.parent, likes: newLikes } }
-					}
-					return pub
-				})
-				setTweets(newTweets)
+				updateTweetLikes(newLikes)
 			})
-			.catch(() => {
-				alert('An error has occured')
+			.catch((err) => {
+				alert(err.message)
 			})
 			.finally(() => {
 				likeBtn.current.disabled = false
