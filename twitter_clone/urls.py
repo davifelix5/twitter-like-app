@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('home/', views.render_home_page, name="home"),
     path('api/tweets/', include('tweets.urls')),
-    re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
+    re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='react_index.html')),
 ]
 
 if settings.DEBUG:
