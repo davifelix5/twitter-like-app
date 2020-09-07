@@ -16,8 +16,9 @@ export default function ({ tweet, tweets, setTweets, noParent }) {
 			.then(wasLiked => {
 				const newLikes = wasLiked ? tweet.likes + 1 : tweet.likes - 1
 				const newTweets = tweets.map(pub => {
-					if (pub.id === tweet.id) return { ...pub, likes: newLikes }
-					else if (pub.parent && pub.parent.id === tweet.id) {
+					if (pub.id === tweet.id) {
+						return { ...pub, likes: newLikes }
+					} else if (pub.parent && pub.parent.id === tweet.id) {
 						return { ...pub, parent: { ...pub.parent, likes: newLikes } }
 					}
 					return pub
