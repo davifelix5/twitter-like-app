@@ -15,10 +15,8 @@ export default function RetweetForm({ tweet, hideForm, updateTweets }) {
   function handleRetweet(e) {
     e.preventDefault()
     api.retweet(tweet.id, values.content)
-      .then(res => {
-        const newRetweets = tweet.retweets + 1
-        updateTweets(tweet.id, { ...tweet, retweets: newRetweets })
-        updateTweets(res.id, res)
+      .then(newTweet => {
+        updateTweets(newTweet.id, { ...newTweet })
         alert('Retweeted successfuly')
         handleHideForm()
       })

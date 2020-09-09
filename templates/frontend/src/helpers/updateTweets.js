@@ -1,7 +1,10 @@
-export function updateTweetList(tweetList, tweetId, newTweet, addNewTweets = true) {
-
+export function updateTweetList(tweetList, tweetId, newTweet) {
   const existingTweet = tweetList.find(item => item.id === tweetId)
-  if (!existingTweet && addNewTweets) return [newTweet, ...tweetList]
+  if (!existingTweet) { // Means that there was a retweet
+    return updateTweetList([newTweet, ...tweetList], newTweet.parent.id, {
+      ...newTweet.parent
+    })
+  }
 
   const newTweetList = tweetList.map(tweet => {
     if (tweet.id === tweetId) {
