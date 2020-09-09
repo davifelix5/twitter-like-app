@@ -6,7 +6,7 @@ import api from '../../../../api/tweets'
 
 import './styles.css'
 
-export default function RetweetForm({ tweet, hideForm, tweets, setTweets }) {
+export default function RetweetForm({ tweet, hideForm, updateTweets }) {
 
   const [values, handleChange] = useForm({
     content: '',
@@ -16,15 +16,9 @@ export default function RetweetForm({ tweet, hideForm, tweets, setTweets }) {
     e.preventDefault()
     api.retweet(tweet.id, values.content)
       .then(res => {
-        const newTweets = tweets.map(pub => {
-          if (pub.id === tweet.id) {
-            return { ...pub, retweets: pub.retweets + 1 }
-          } else if (pub.parent && pub.parent.id === tweet.id) {
-            return { ...pub, parent: { ...pub.parent, retweets: pub.parent.retweets + 1 } }
-          }
-          return pub
-        })
-        setTweets([res, ...newTweets])
+        const newRetweets = tweet.retweets + 1
+        updateTweets(tweet.id, { ...tweet, retweets: newRetweets })
+        updateTweets(res.id, res)
         alert('Retweeted successfuly')
         handleHideForm()
       })

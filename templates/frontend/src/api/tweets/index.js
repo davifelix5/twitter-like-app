@@ -18,13 +18,26 @@ export default {
 
   async profileList(username) {
     try {
-      const url = BASE_URL + `tweets/${username}`
+      const url = BASE_URL + `tweets/user/${username}/`
       const res = await fetch(url)
       if (!res.ok) throw new Error('Request failed')
       const data = await res.json()
       return data.response
     } catch (err) {
       const error = ({ message: 'Could not find tweets', status: err.status })
+      throw error
+    }
+  },
+
+  async detailView(tweetId) {
+    try {
+      const url = BASE_URL + `tweets/${tweetId}/`
+      const res = await fetch(url)
+      if (!res.ok) throw new Error('Request failed')
+      const data = await res.json()
+      return data.response
+    } catch (err) {
+      const error = ({ message: 'Could not find tweet', status: err.status })
       throw error
     }
   },
