@@ -39,7 +39,7 @@ export default function TweetDetail() {
           {tweetNotFound && <h3>Tweet não encontrado</h3>}
           {tweet && (
             <TweetsList>
-              <Tweet updateTweets={updateTweet} tweet={tweet} />
+              <Tweet updateTweets={updateTweet} tweet={tweet} isDetail />
             </TweetsList>
           )}
         </div>
