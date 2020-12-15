@@ -51,8 +51,6 @@ export default function Profile() {
               {tweetsNotFound ? <h1>Nenhum tweet encontrado</h1> : <Loader />}
             </div>
           )}
-          )
-
       </div>
     </>
   )

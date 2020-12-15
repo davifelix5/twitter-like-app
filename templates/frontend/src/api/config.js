@@ -4,6 +4,6 @@ export default {
   BASE_URL: 'http://127.0.0.1:8000/api/',
   postHeaders: {
     'Content-Type': 'application/json',
-    'X-CSRFToken': getCookie('csrf')
+    'X-CSRFToken': getCookie('csrftoken')
   }
 }
